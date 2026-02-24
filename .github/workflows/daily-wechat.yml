@@ -1,0 +1,51 @@
+name: Daily WeChat Message
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+concurrency:
+  group: daily-wechat-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Send daily message
+        env:
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
+          WECHAT_TEMPLATE_ID: ${{ secrets.WECHAT_TEMPLATE_ID }}
+          WECHAT_TO_USER_OPENID: ${{ secrets.WECHAT_TO_USER_OPENID }}
+          TZ: Asia/Shanghai
+          ENABLE_WEATHER: "false"
+          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+          WEATHER_LOCATION: Beijing
+          FIXED_TITLE: 早安提醒
+          FIXED_REMARK: 祝你今天顺利
+          ANNIVERSARY_DATE: 2026-01-01
+          ANNIVERSARY_NAME: 纪念日
+          FIELD_FIRST: first
+          FIELD_DATE: date
+          FIELD_WEEKDAY: weekday
+          FIELD_WEATHER: weather
+          FIELD_ANNIVERSARY: anniversary
+          FIELD_REMARK: remark
+          REQUEST_TIMEOUT_SECONDS: "10"
+        run: python -m app.main

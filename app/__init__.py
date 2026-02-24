@@ -1,0 +1,1 @@
+"""Daily WeChat sender package."""
