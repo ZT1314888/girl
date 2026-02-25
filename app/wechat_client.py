@@ -22,7 +22,7 @@ class WechatClient:
         self.timeout_seconds = timeout_seconds
 
     def get_access_token(self, app_id: str, app_secret: str) -> str:
-        url = "https://api.weixin.qq.com/cgi-bin/token"
+        url = "https://hk.api.weixin.qq.com/cgi-bin/token"
         params = {
             "grant_type": "client_credential",
             "appid": app_id,
@@ -39,7 +39,7 @@ class WechatClient:
         return payload["access_token"]
 
     def send_template_message(self, access_token: str, payload: dict) -> SendResult:
-        url = "https://api.weixin.qq.com/cgi-bin/message/template/send"
+        url = "https://hk.api.weixin.qq.com/cgi-bin/message/template/send"
         response = requests.post(
             url,
             params={"access_token": access_token},
