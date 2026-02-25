@@ -3,7 +3,7 @@ name: Daily WeChat Message
 on:
   workflow_dispatch:
   schedule:
-    - cron: "58 21 * * *"
+    - cron: "58 9 * * *"
 
 concurrency:
   group: daily-wechat-${{ github.ref }}
