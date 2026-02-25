@@ -47,5 +47,5 @@ jobs:
           FIELD_WEATHER: weather
           FIELD_ANNIVERSARY: anniversary
           FIELD_REMARK: remark
-          REQUEST_TIMEOUT_SECONDS: "10"
+          REQUEST_TIMEOUT_SECONDS: "30"
         run: python -m app.main
