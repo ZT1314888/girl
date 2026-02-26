@@ -34,7 +34,7 @@ jobs:
           WECHAT_TEMPLATE_ID: ${{ secrets.WECHAT_TEMPLATE_ID }}
           WECHAT_TO_USER_OPENIDS: ${{ secrets.WECHAT_TO_USER_OPENIDS }}
           TZ: Asia/Shanghai
-          ENABLE_WEATHER: "false"
+          ENABLE_WEATHER: "true"
           QWEATHER_API_KEY: ${{ secrets.QWEATHER_API_KEY }}
           WEATHER_LOCATION: 周口
           FIXED_TITLE: 早安提醒
