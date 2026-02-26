@@ -32,7 +32,7 @@ jobs:
           WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
           WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
           WECHAT_TEMPLATE_ID: ${{ secrets.WECHAT_TEMPLATE_ID }}
-          WECHAT_TO_USER_OPENID: ${{ secrets.WECHAT_TO_USER_OPENID }}
+          WECHAT_TO_USER_OPENIDS: ${{ secrets.WECHAT_TO_USER_OPENIDS }}
           TZ: Asia/Shanghai
           ENABLE_WEATHER: "false"
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
