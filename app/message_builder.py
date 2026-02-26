@@ -47,6 +47,7 @@ def build_template_payload(
     settings: Settings,
     now: datetime,
     weather_text: str | None = None,
+    to_user: str | None = None,
 ) -> TemplatePayload:
     weather_value = weather_text or "天气信息暂不可用"
     anniversary_value = _format_anniversary(settings, now)
@@ -60,8 +61,12 @@ def build_template_payload(
         settings.field_remark: {"value": settings.fixed_remark, "color": "#173177"},
     }
 
+    # Use provided to_user or fall back to first user in list (for backward compatibility)
+    if to_user is None:
+        to_user = settings.wechat_to_user_openids[0]
+
     return TemplatePayload(
-        touser=settings.wechat_to_user_openid,
+        touser=to_user,
         template_id=settings.wechat_template_id,
         data=data,
     )

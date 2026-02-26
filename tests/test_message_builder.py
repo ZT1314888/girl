@@ -9,7 +9,7 @@ def _build_settings() -> Settings:
         wechat_app_id="a",
         wechat_app_secret="b",
         wechat_template_id="tpl",
-        wechat_to_user_openid="openid",
+        wechat_to_user_openids=["default_user"],
         tz="Asia/Shanghai",
         enable_weather=False,
         weather_api_key=None,
@@ -33,7 +33,7 @@ def test_build_template_payload_with_weather():
     now = datetime(2026, 2, 24, 8, 0, 0)
     payload = build_template_payload(settings, now, weather_text="晴 20°C").to_dict()
 
-    assert payload["touser"] == "openid"
+    assert payload["touser"] == "default_user"
     assert payload["template_id"] == "tpl"
     assert payload["data"]["first"]["value"] == "早安"
     assert payload["data"]["date"]["value"] == "2026-02-24"
@@ -47,3 +47,10 @@ def test_build_template_payload_without_weather():
     now = datetime(2026, 2, 24, 8, 0, 0)
     payload = build_template_payload(settings, now, weather_text=None).to_dict()
     assert payload["data"]["weather"]["value"] == "天气信息暂不可用"
+
+
+def test_build_template_payload_with_custom_user():
+    settings = _build_settings()
+    now = datetime(2026, 2, 24, 8, 0, 0)
+    payload = build_template_payload(settings, now, weather_text=None, to_user="custom_user").to_dict()
+    assert payload["touser"] == "custom_user"

@@ -82,17 +82,27 @@ def run() -> int:
 
     now = datetime.now(ZoneInfo(settings.tz))
     weather_text = _build_weather(settings)
-    payload = build_template_payload(settings=settings, now=now, weather_text=weather_text).to_dict()
+
+    # Display configured users
+    openids = settings.wechat_to_user_openids
+    LOGGER.info("Configured %d user(s) to receive message", len(openids))
 
     if args.dry_run:
         LOGGER.info("Dry run enabled; no message will be sent")
+        payload = build_template_payload(settings=settings, now=now, weather_text=weather_text).to_dict()
         print(json.dumps(payload, ensure_ascii=False, indent=2))
+        print("\n" + "=" * 50)
+        print("Target users:")
+        for i, openid in enumerate(openids, 1):
+            print(f"  {i}. {openid}")
         return 0
 
     if args.send_now:
         LOGGER.info("Send-now mode enabled")
 
     client = WechatClient(timeout_seconds=settings.request_timeout_seconds)
+
+    # Get access token once for all users
     try:
         token = _retry_send(
             max_attempts=3,
@@ -102,23 +112,44 @@ def run() -> int:
                 app_secret=settings.wechat_app_secret,
             ),
         )
-        result = _retry_send(
-            max_attempts=3,
-            wait_seconds=2.0,
-            fn=lambda: client.send_template_message(access_token=token, payload=payload),
-        )
     except (requests.RequestException, WechatApiError) as exc:
-        LOGGER.error("WeChat API call failed: %s", exc)
-        return 1
-    except Exception as exc:  # noqa: BLE001
-        LOGGER.error("Unexpected failure: %s", exc)
+        LOGGER.error("Failed to get access token: %s", exc)
         return 1
 
-    if not result.ok:
-        LOGGER.error("Template message rejected: %s %s", result.errcode, result.errmsg)
+    # Send to each user
+    success_count = 0
+    failed_users: list[tuple[str, str]] = []
+
+    for openid in openids:
+        payload = build_template_payload(settings=settings, now=now, weather_text=weather_text, to_user=openid).to_dict()
+        try:
+            result = _retry_send(
+                max_attempts=3,
+                wait_seconds=2.0,
+                fn=lambda: client.send_template_message(access_token=token, payload=payload),
+            )
+            if result.ok:
+                LOGGER.info("Message sent successfully to %s. msgid=%s", openid, result.msgid)
+                success_count += 1
+            else:
+                error_msg = f"errcode={result.errcode}, errmsg={result.errmsg}"
+                LOGGER.error("Message rejected for user %s: %s", openid, error_msg)
+                failed_users.append((openid, error_msg))
+        except (requests.RequestException, WechatApiError) as exc:
+            LOGGER.error("Failed to send to user %s: %s", openid, exc)
+            failed_users.append((openid, str(exc)))
+        except Exception as exc:  # noqa: BLE001
+            LOGGER.error("Unexpected error for user %s: %s", openid, exc)
+            failed_users.append((openid, str(exc)))
+
+    # Summary
+    LOGGER.info("Sending complete: %d/%d succeeded", success_count, len(openids))
+    if failed_users:
+        LOGGER.error("Failed users (%d):", len(failed_users))
+        for openid, error in failed_users:
+            LOGGER.error("  - %s: %s", openid, error)
         return 1
 
-    LOGGER.info("Template message sent successfully. msgid=%s", result.msgid)
     return 0
 
 

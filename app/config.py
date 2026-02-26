@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from datetime import datetime
@@ -17,7 +18,7 @@ class Settings:
     wechat_app_id: str
     wechat_app_secret: str
     wechat_template_id: str
-    wechat_to_user_openid: str
+    wechat_to_user_openids: list[str]
     tz: str
     enable_weather: bool
     weather_api_key: Optional[str]
@@ -67,6 +68,33 @@ def _get_int(name: str, default: int) -> int:
     return value
 
 
+def _get_openid_list() -> list[str]:
+    """Parse multiple user openids from environment variable.
+
+    Supports both formats:
+    1. JSON array: '["openid1", "openid2", "openid3"]'
+    2. Comma-separated: 'openid1,openid2,openid3'
+    """
+    raw = os.getenv("WECHAT_TO_USER_OPENIDS", "").strip()
+    if not raw:
+        # Fallback to old single openid format for backward compatibility
+        old_raw = os.getenv("WECHAT_TO_USER_OPENID", "").strip()
+        if old_raw:
+            return [old_raw]
+        raise ConfigError("Missing required environment variable: WECHAT_TO_USER_OPENIDS")
+
+    # Try parsing as JSON array first
+    try:
+        openids = json.loads(raw)
+        if isinstance(openids, list):
+            return [oid.strip() for oid in openids if oid.strip()]
+    except (json.JSONDecodeError, TypeError):
+        pass
+
+    # Fall back to comma-separated format
+    return [oid.strip() for oid in raw.split(",") if oid.strip()]
+
+
 def load_settings() -> Settings:
     load_dotenv()
 
@@ -86,7 +114,7 @@ def load_settings() -> Settings:
         wechat_app_id=_require_env("WECHAT_APP_ID"),
         wechat_app_secret=_require_env("WECHAT_APP_SECRET"),
         wechat_template_id=_require_env("WECHAT_TEMPLATE_ID"),
-        wechat_to_user_openid=_require_env("WECHAT_TO_USER_OPENID"),
+        wechat_to_user_openids=_get_openid_list(),
         tz=os.getenv("TZ", "Asia/Shanghai").strip() or "Asia/Shanghai",
         enable_weather=enable_weather,
         weather_api_key=weather_api_key,
