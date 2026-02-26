@@ -7,66 +7,81 @@ class WeatherProviderError(RuntimeError):
     """Raised when weather provider is unavailable."""
 
 
+# City name to Location ID mapping for common Chinese cities
+CITY_LOCATION_MAP: dict[str, str] = {
+    # Beijing
+    "北京": "101010100", "Beijing": "101010100", "beijing": "101010100",
+    # Shanghai
+    "上海": "101020100", "Shanghai": "101020100", "shanghai": "101020100",
+    # Guangzhou
+    "广州": "101280101", "Guangzhou": "101280101", "guangzhou": "101280101",
+    # Shenzhen
+    "深圳": "101280601", "Shenzhen": "101280601", "shenzhen": "101280601",
+    # Zhoukou
+    "周口": "101181401", "Zhoukou": "101181401", "zhoukou": "101181401",
+    # Zhengzhou
+    "郑州": "101180101", "Zhengzhou": "101180101", "zhengzhou": "101180101",
+    # You can add more cities as needed
+}
+
+
 def fetch_openweather_summary(
     api_key: str,
     location: str,
     timeout_seconds: int = 10,
 ) -> str:
-    """Fetch weather summary from QWeather API.
+    """Fetch daily weather forecast from QWeather API.
 
     This function name is kept for backward compatibility.
-    Internally it uses QWeather (和风天气) API.
+    Internally it uses QWeather (和风天气) daily weather forecast API.
+    Uses custom API Host for authentication.
 
     Args:
         api_key: QWeather API key
-        location: City name (e.g., "Beijing", "北京", "Shanghai")
+        location: City name (e.g., "Beijing", "北京", "Shanghai") or LocationID (e.g., "101010100")
         timeout_seconds: Request timeout in seconds
 
     Returns:
-        Weather summary string in format: "{location} {description}，气温 {temp}°C，体感 {feels_like}°C"
+        Weather summary string in format: "{location} {description}，气温 {temp_min}~{temp_max}°C，{wind}"
     """
-    # Step 1: City lookup to get Location ID
-    city_lookup_url = "https://geoapi.qweather.com/v2/city/lookup"
-    city_params = {
-        "location": location,
-        "key": api_key,
-    }
-    city_response = requests.get(city_lookup_url, params=city_params, timeout=timeout_seconds)
-    city_response.raise_for_status()
-    city_payload = city_response.json()
+    # Custom API Host for QWeather
+    api_host = "https://mc7p42xtf5.re.qweatherapi.com"
 
-    if city_payload.get("code") != "200":
-        raise WeatherProviderError(f"City lookup failed: {city_payload.get('location', [])}")
+    # Map city name to location ID
+    location_id = CITY_LOCATION_MAP.get(location, location)
+    display_name = location
 
-    locations = city_payload.get("location", [])
-    if not locations:
-        raise WeatherProviderError(f"City not found: {location}")
-
-    location_id = locations[0].get("id")
-    location_name = locations[0].get("name", location)
-
-    # Step 2: Get weather data using Location ID
-    weather_url = "https://devapi.qweather.com/v7/weather/now"
+    # Get daily weather forecast (3 days) directly
+    weather_url = f"{api_host}/v7/weather/3d"
     weather_params = {
         "location": location_id,
-        "key": api_key,
     }
-    weather_response = requests.get(weather_url, params=weather_params, timeout=timeout_seconds)
+    headers = {
+        "X-QW-Api-Key": api_key,
+        "Accept-Encoding": "gzip, deflate"
+    }
+    weather_response = requests.get(weather_url, params=weather_params, headers=headers, timeout=timeout_seconds, proxies={"http": None, "https": None})
     weather_response.raise_for_status()
     weather_payload = weather_response.json()
 
     if weather_payload.get("code") != "200":
         raise WeatherProviderError(f"Weather API failed: {weather_payload}")
 
-    now = weather_payload.get("now", {})
-    if not now:
+    daily = weather_payload.get("daily", [])
+    if not daily:
         raise WeatherProviderError("No weather data returned")
 
-    temp = now.get("temp")
-    feels_like = now.get("feelsLike")
-    description = now.get("text", "未知天气")
+    # Get today's forecast (first item)
+    today = daily[0]
+    text_day = today.get("textDay", "未知天气")
+    temp_min = today.get("tempMin")
+    temp_max = today.get("tempMax")
+    wind_dir_day = today.get("windDirDay", "")
+    wind_scale_day = today.get("windScaleDay", "")
 
-    if temp is None or feels_like is None:
+    if temp_min is None or temp_max is None:
         raise WeatherProviderError("Missing temperature fields in weather response")
 
-    return f"{location_name} {description}，气温 {temp}°C，体感 {feels_like}°C"
+    # Format: 周口 晴，气温 5~15°C，东北风3-2级
+    wind_info = f"，{wind_dir_day}{wind_scale_day}级" if wind_dir_day else ""
+    return f"{display_name} {text_day}，气温 {temp_min}~{temp_max}°C{wind_info}"
