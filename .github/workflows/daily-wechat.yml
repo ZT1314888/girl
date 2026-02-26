@@ -38,7 +38,7 @@ jobs:
           QWEATHER_API_KEY: ${{ secrets.QWEATHER_API_KEY }}
           WEATHER_LOCATION: 周口
           FIXED_TITLE: 早安提醒
-          FIXED_REMARK: 祝你今天顺利
+          FIXED_REMARK: 宝宝要天天开心呀!
           ANNIVERSARY_DATE: 2024-12-31
           ANNIVERSARY_NAME: 在一起
           FIELD_FIRST: first
