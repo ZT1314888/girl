@@ -46,7 +46,7 @@ def _build_weather(settings) -> str | None:
         return None
     try:
         return fetch_openweather_summary(
-            api_key=settings.weather_api_key or "",
+            api_key=settings.qweather_api_key or "",
             location=settings.weather_location,
             timeout_seconds=settings.request_timeout_seconds,
         )

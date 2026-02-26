@@ -56,7 +56,7 @@ def test_missing_required_env_raises(monkeypatch):
 def test_enable_weather_requires_key(monkeypatch):
     _set_minimal_env(monkeypatch)
     monkeypatch.setenv("ENABLE_WEATHER", "true")
-    monkeypatch.delenv("WEATHER_API_KEY", raising=False)
+    monkeypatch.delenv("QWEATHER_API_KEY", raising=False)
     with pytest.raises(ConfigError):
         load_settings()
 

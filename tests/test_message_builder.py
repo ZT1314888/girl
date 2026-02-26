@@ -12,7 +12,7 @@ def _build_settings() -> Settings:
         wechat_to_user_openids=["default_user"],
         tz="Asia/Shanghai",
         enable_weather=False,
-        weather_api_key=None,
+        qweather_api_key=None,
         weather_location="Beijing",
         fixed_title="早安",
         fixed_remark="顺利",

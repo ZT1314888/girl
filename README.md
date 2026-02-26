@@ -41,8 +41,8 @@
 - `WECHAT_APP_ID`
 - `WECHAT_APP_SECRET`
 - `WECHAT_TEMPLATE_ID`
-- `WECHAT_TO_USER_OPENID`
-- `WEATHER_API_KEY`（仅当 `ENABLE_WEATHER=true` 时需要）
+- `WECHAT_TO_USER_OPENIDS`
+- `QWEATHER_API_KEY`（仅当 `ENABLE_WEATHER=true` 时需要）
 
 ## 5. 本地运行
 
@@ -71,7 +71,9 @@ python -m app.main --send-now
 2. `Template message rejected`
    - 检查模板字段映射是否和你在测试号后台的模板字段一致。
 3. 天气字段为空
-   - 检查 `ENABLE_WEATHER` 和 `WEATHER_API_KEY`、`WEATHER_LOCATION`。
+   - 检查 `ENABLE_WEATHER` 和 `QWEATHER_API_KEY`、`WEATHER_LOCATION`。
+   - QWeather API 注册地址：https://console.qweather.com/
+   - 免费版限制：1000次/天
 
 ## 8. 可扩展方向
 

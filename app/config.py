@@ -21,7 +21,7 @@ class Settings:
     wechat_to_user_openids: list[str]
     tz: str
     enable_weather: bool
-    weather_api_key: Optional[str]
+    qweather_api_key: Optional[str]
     weather_location: str
     fixed_title: str
     fixed_remark: str
@@ -99,9 +99,9 @@ def load_settings() -> Settings:
     load_dotenv()
 
     enable_weather = _get_bool("ENABLE_WEATHER", default=False)
-    weather_api_key = os.getenv("WEATHER_API_KEY", "").strip() or None
-    if enable_weather and not weather_api_key:
-        raise ConfigError("ENABLE_WEATHER=true requires WEATHER_API_KEY")
+    qweather_api_key = os.getenv("QWEATHER_API_KEY", "").strip() or None
+    if enable_weather and not qweather_api_key:
+        raise ConfigError("ENABLE_WEATHER=true requires QWEATHER_API_KEY")
 
     anniversary_date = os.getenv("ANNIVERSARY_DATE", "").strip() or None
     if anniversary_date:
@@ -117,7 +117,7 @@ def load_settings() -> Settings:
         wechat_to_user_openids=_get_openid_list(),
         tz=os.getenv("TZ", "Asia/Shanghai").strip() or "Asia/Shanghai",
         enable_weather=enable_weather,
-        weather_api_key=weather_api_key,
+        qweather_api_key=qweather_api_key,
         weather_location=os.getenv("WEATHER_LOCATION", "Beijing").strip() or "Beijing",
         fixed_title=os.getenv("FIXED_TITLE", "早安提醒").strip() or "早安提醒",
         fixed_remark=os.getenv("FIXED_REMARK", "祝你今天顺利").strip() or "祝你今天顺利",

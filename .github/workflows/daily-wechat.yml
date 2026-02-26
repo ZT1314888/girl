@@ -35,12 +35,12 @@ jobs:
           WECHAT_TO_USER_OPENIDS: ${{ secrets.WECHAT_TO_USER_OPENIDS }}
           TZ: Asia/Shanghai
           ENABLE_WEATHER: "false"
-          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
-          WEATHER_LOCATION: Beijing
+          QWEATHER_API_KEY: ${{ secrets.QWEATHER_API_KEY }}
+          WEATHER_LOCATION: 周口
           FIXED_TITLE: 早安提醒
           FIXED_REMARK: 祝你今天顺利
-          ANNIVERSARY_DATE: 2026-01-01
-          ANNIVERSARY_NAME: 纪念日
+          ANNIVERSARY_DATE: 2024-12-31
+          ANNIVERSARY_NAME: 在一起
           FIELD_FIRST: first
           FIELD_DATE: date
           FIELD_WEEKDAY: weekday
