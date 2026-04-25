@@ -120,33 +120,7 @@ def load_settings() -> Settings:
         qweather_api_key=qweather_api_key,
         weather_location=os.getenv("WEATHER_LOCATION", "Beijing").strip() or "Beijing",
         fixed_title=os.getenv("FIXED_TITLE", "早安提醒").strip() or "早安提醒",
-        fixed_remark=os.getenv("FIXED_REMARK", (
-            "张彤你好，我是王昊琨，那次的分手对你来说可能很突然，"
-            "我知道你当时很不安很难受，我也一样，"
-            "那时的你应该把我想的很恶心吧，"
-            "自上次工作结束后，其实对我而言是场回不了头的灾难，"
-            "投递了简历无果后我开始怀疑自己，"
-            "怀疑自己当时是不是靠运气去实习的，"
-            "怀疑自己是不是没有硬实力，"
-            "怀疑自己是不是方向走错了，"
-            "面对这些我第一次难受了起来，"
-            "我也想起过你和我之间的点点滴滴，"
-            "我相信你也了解我有时候很要强但是我经不住考验，"
-            "我不知道当时自己做的是否是100%正确，"
-            "但是失败就意味着以后的日子就是空谈，"
-            "我也喜欢你爱你，所以才采用当时的那种方式，"
-            "我在家内耗了很长时间，也变瘦了，"
-            "当时的我估计只能用这种方式来对你说，"
-            "我不想从正面来谈论这些，所以一直逃避，"
-            "这一个月你也听了很多人的话吧，"
-            "如果你看到这条信息，希望你可以在不经意间想起那段日子，"
-            "你也因为莽撞而无意间伤害过我，"
-            "你有时候傻傻的挺可爱的，"
-            "现在回看那些照片我还是有点难受，"
-            "我们都一路磕磕碰碰的走过，"
-            "希望你以后的日子过的越来越好，平平淡淡\n"
-            "-王昊琨"
-        )).strip(),
+        fixed_remark=os.getenv("FIXED_REMARK", "祝你今天顺利").strip() or "祝你今天顺利",
         anniversary_date=anniversary_date,
         anniversary_name=os.getenv("ANNIVERSARY_NAME", "纪念日").strip() or "纪念日",
         field_first=os.getenv("FIELD_FIRST", "first").strip() or "first",
