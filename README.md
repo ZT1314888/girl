@@ -1,6 +1,39 @@
-# Daily WeChat Sender (GitHub Actions)
+# Daily WeChat Sender (Rust + Docker Compose)
 
-每天北京时间 08:00 自动发送固定格式微信模板消息（支持动态字段），通过 GitHub Actions 调度执行。
+Rust 常驻服务每天北京时间 08:00 和 18:00 发送微信公众号模板消息。旧 Python 实现保留用于回滚和行为对照；GitHub Actions 定时触发已停用。
+
+## Rust 部署
+
+复制 `.env.example.rust` 为 `.env`，填写两个模板 ID、微信凭据及按 `openid` 配置的显示姓名，然后运行：
+
+```bash
+docker compose up -d --build
+docker compose logs -f
+```
+
+预览请求体（不发送）：
+
+```bash
+docker compose run --rm daily-wechat preview morning
+docker compose run --rm daily-wechat preview evening
+```
+
+容器使用 named volume 保存 `/data/deliveries.sqlite3`。首次上线前应关闭旧的 GitHub Actions 定时任务；本仓库已经移除 `schedule`，仅保留手动触发入口。
+
+模板正文应为：
+
+```text
+{{first.DATA}}
+{{keyword1.DATA}}
+{{keyword2.DATA}}
+{{keyword3.DATA}}
+{{keyword4.DATA}}
+{{remark.DATA}}
+```
+
+其中 `first` 为“来自{显示姓名}的早安提醒/晚安提醒”，`keyword1` 为日期，`keyword2` 为星期，`keyword3` 为天气，`keyword4` 为“和{显示姓名}相爱已经 X 天”，`remark` 为“好好吃饭,好好睡觉,好好去爱你的{显示姓名}”。
+
+每天北京时间 08:00 和 18:00 自动发送早晚两份微信模板消息（支持动态字段），由 Docker Compose 中的 Rust 常驻服务调度执行。
 
 ## 1. 功能说明
 
@@ -71,7 +104,7 @@ python -m app.main --send-now
 2. `Template message rejected`
    - 检查模板字段映射是否和你在测试号后台的模板字段一致。
 3. 天气字段为空
-   - 检查 `ENABLE_WEATHER` 和 `QWEATHER_API_KEY`、`WEATHER_LOCATION`。
+   - 检查 `ENABLE_WEATHER`、`QWEATHER_API_KEY` 和 `WEATHER_LOCATION`。
    - QWeather API 注册地址：https://console.qweather.com/
    - 免费版限制：1000次/天
 
